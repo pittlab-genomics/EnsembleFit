@@ -1,0 +1,15 @@
+{
+    "required": {
+        "samples": "example/WGS_BRCA.96.processed_2samples.txt",
+        "reference": "example/COSMIC_v3.3_SBS_GRCh37_processed.txt",
+        "output": "output/",
+        "strategy": "all"
+    },
+    "tools": {
+        "SigProfilerAssignment": true,
+        "Sigminer": true,
+        "SignatureToolsLib": false,
+        "MutationalPatterns": true,
+        "MutSignatures": true
+    }   
+}

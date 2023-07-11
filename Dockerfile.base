@@ -1,0 +1,32 @@
+FROM public.ecr.aws/lambda/python:3.9
+
+ENV CONDA_ENV_NAME mutsig_assignment
+
+WORKDIR /app
+
+# Install system dependencies
+RUN yum update -y \
+    && yum install -y which tar gzip wget r-base-dev \
+    && curl -O https://repo.anaconda.com/miniconda/Miniconda3-py39_23.1.0-1-Linux-x86_64.sh --output-dir /tmp \
+    && bash /tmp/Miniconda3-py39_23.1.0-1-Linux-x86_64.sh -b -p /miniconda \
+    && rm /tmp/Miniconda3-py39_23.1.0-1-Linux-x86_64.sh
+
+ENV PATH="/miniconda/bin:${PATH}"
+RUN conda init bash
+
+# Create conda environment and nake RUN commands use the new environment
+# Replace the image’s existing Python with Python from the conda environment
+COPY ./setup/environment.yml ./setup/environment.yml
+RUN conda env create --name $CONDA_ENV_NAME --file ./setup/environment.yml \
+    && echo "conda activate $CONDA_ENV_NAME" >> ~/.bashrc \
+    && mv /var/lang/bin/python3.9 /var/lang/bin/python3.9-orig \
+    && ln -sf /miniconda/envs/$CONDA_ENV_NAME/bin/python /var/lang/bin/python3.9
+
+# Install R packages
+COPY ./setup/install_rtools.R ./setup/install_rtools.R
+RUN conda run -n $CONDA_ENV_NAME Rscript ./setup/install_rtools.R
+
+# Install reference genome
+COPY setup/install_genome.py setup/install_genome.py
+RUN conda run -n $CONDA_ENV_NAME python setup/install_genome.py GRCh37 \
+    && conda run -n $CONDA_ENV_NAME python setup/install_genome.py GRCh38
