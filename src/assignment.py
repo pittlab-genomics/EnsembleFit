@@ -46,8 +46,9 @@ def main(config_path):
         TOOLS_APPS['generate_matrix'](vcf_path, genome_reference).result()
         sample_path = os.path.join(vcf_path, 'output/SBS/mutsig.SBS96.all')
     else:
+        # Format matrix's SBS96 order to match the signature reference
         sample_path = assignment_config['samples']
-        utils.format_matrix(sample_path)
+        utils.format_matrix(sample_path, reference_path)
 
     # Check if matrix is valid
     if not utils.is_valid_matrix(sample_path):
@@ -67,11 +68,12 @@ def main(config_path):
 
     [r.result() for r in runs]
 
-    # Post-processing after all runs are done
-    #TOOLS_APPS['postprocess'](sample_path, reference_path, output_path, strategy, tools).result()
-
     # EnsembleFit
     TOOLS_APPS['EnsembleFit'](sample_path, reference_path, output_path, strategy, tools).result()
+
+    # Post-processing after all runs are done
+    all_tools = tools + ['Ensemble-Majority', 'Ensemble-Unanimous', 'Ensemble-Mean']
+    TOOLS_APPS['postprocess'](sample_path, reference_path, output_path, strategy, all_tools).result()
 
 
 if __name__ == '__main__':

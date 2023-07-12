@@ -5,25 +5,7 @@ import math
 import pandas as pd
 import numpy as np
 
-
-def as_frequency_colwise(df, skipfirst=True):
-    df = df.copy()
-    cols = df.columns[1:] if skipfirst else df.columns
-    for c in cols:
-        if df[c].sum() == 0:
-            continue
-        df[c] = df[c] / df[c].sum()
-    return df
-
-
-def as_frequency_rowwise(df, skipfirst=True):
-    df = df.copy()
-    if skipfirst:
-        df = df.set_index(df.columns[0])
-        df = df.div(df.sum(axis=1), axis=0).reset_index()
-    else:
-        df = df.div(df.sum(axis=1), axis=0)
-    return df
+from workflow_utils import as_frequency_rowwise
 
 
 def ensemble_qualitative(fit, all_sigs, all_samples):

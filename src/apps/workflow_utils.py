@@ -49,13 +49,17 @@ def throw_invalid_matrix_error(matrix_path):
 
 
 
-def format_matrix(matrix_path):
+def format_matrix(matrix_path, reference_path=None):
     """Formats a VALID matrix to standardized SBS96 for the workflow"""
     matrix = pd.read_csv(matrix_path, sep='\t')
-    sbs96_features = [f'{b3}[{sub}]{b5}' \
-                        for b3 in 'ACGT' \
-                        for sub in ['C>A', 'C>G', 'C>T', 'T>A', 'T>C', 'T>G'] \
-                        for b5 in 'ACGT']
+    if reference_path is None:
+        sbs96_features = [f'{b3}[{sub}]{b5}' \
+                            for b3 in 'ACGT' \
+                            for sub in ['C>A', 'C>G', 'C>T', 'T>A', 'T>C', 'T>G'] \
+                            for b5 in 'ACGT']
+    else:
+        reference = pd.read_csv(reference_path, sep='\t')
+        sbs96_features = reference.iloc[:, 0].tolist()
     matrix.columns = ['MutationType'] + list(matrix.columns[1:])
     matrix = matrix.set_index('MutationType').reindex(sbs96_features).reset_index()
     matrix.to_csv(matrix_path, sep='\t', index=False)
