@@ -6,6 +6,7 @@ from parsl.executors import ThreadPoolExecutor
 from parsl.config import Config
 
 from apps.parsl_bash_apps import *
+import apps.workflow_utils as utils
 
 LOGS_PATH = 'logs'
 LOGGER = logging.getLogger('ensemblefit')
@@ -31,13 +32,26 @@ def main(config_path):
     with open(config_path) as f:
         assignment_config = json.load(f)
 
-    sample_path = assignment_config['required']['samples']
-    reference_path = assignment_config['required']['reference']
-    output_path = assignment_config['required']['output']
-    strategy = assignment_config['required']['strategy']
+    reference_path = assignment_config['signature_reference']
+    output_path = assignment_config['output']
+    strategy = assignment_config['strategy']
 
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
+
+    # Matrix generation if needed
+    if assignment_config['file_type'] == 'vcf':
+        vcf_path = assignment_config['samples']
+        genome_reference = assignment_config['genome_reference']
+        TOOLS_APPS['generate_matrix'](vcf_path, genome_reference).result()
+        sample_path = os.path.join(vcf_path, 'output/SBS/mutsig.SBS96.all')
+    else:
+        sample_path = assignment_config['samples']
+        utils.format_matrix(sample_path)
+
+    # Check if matrix is valid
+    if not utils.is_valid_matrix(sample_path):
+        throw_invalid_matrix_error(sample_path)
 
     # Start runs in parallel
     runs = []
@@ -54,7 +68,10 @@ def main(config_path):
     [r.result() for r in runs]
 
     # Post-processing after all runs are done
-    TOOLS_APPS['postprocess'](sample_path, reference_path, output_path, strategy, tools).result()
+    #TOOLS_APPS['postprocess'](sample_path, reference_path, output_path, strategy, tools).result()
+
+    # EnsembleFit
+    TOOLS_APPS['EnsembleFit'](sample_path, reference_path, output_path, strategy, tools).result()
 
 
 if __name__ == '__main__':

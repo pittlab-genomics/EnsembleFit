@@ -59,3 +59,23 @@ def format_matrix(matrix_path):
     matrix.columns = ['MutationType'] + list(matrix.columns[1:])
     matrix = matrix.set_index('MutationType').reindex(sbs96_features).reset_index()
     matrix.to_csv(matrix_path, sep='\t', index=False)
+
+
+def as_frequency_colwise(df, skipfirst=True):
+    df = df.copy()
+    cols = df.columns[1:] if skipfirst else df.columns
+    for c in cols:
+        if df[c].sum() == 0:
+            continue
+        df[c] = df[c] / df[c].sum()
+    return df
+
+
+def as_frequency_rowwise(df, skipfirst=True):
+    df = df.copy()
+    if skipfirst:
+        df = df.set_index(df.columns[0])
+        df = df.div(df.sum(axis=1), axis=0).reset_index()
+    else:
+        df = df.div(df.sum(axis=1), axis=0)
+    return df

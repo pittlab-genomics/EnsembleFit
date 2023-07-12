@@ -15,15 +15,11 @@ library(tidyverse)
 library(tibble)
 library(MutationalPatterns)
 
-cat(paste0("[", Sys.time(), "] Start"), "\n")
 ##############################
 # REGULAR
 ##############################
 regular_fit <- function() {
     matrix <- as.matrix(read.delim(sample_path, sep="\t", row.names=1))
-    #matrix <- read.delim(sample_path, sep="\t")
-    #matrix <- as.matrix(setNames(data.frame(t(matrix[,-1])), matrix[,1]))
-    #matrix <- t(matrix)
 
     ref <- read.delim(reference_path, sep="\t")
     ref <- ref %>% column_to_rownames(., var = colnames(ref)[1])
@@ -76,11 +72,13 @@ strict_refit <- function() {
 ##############################
 # MAIN
 ##############################
-if (strategy == "all") {
-    regular_fit()
-    strict_remove()
-    strict_refit()
-} else if (strategy == "regular") {
+cat(paste0("[", Sys.time(), "] Start"), "\n")
+cat(paste0("    - Sample Path: ", sample_path), "\n")
+cat(paste0("    - Reference Path: ", reference_path), "\n")
+cat(paste0("    - Output Path: ", output_path), "\n")
+cat(paste0("    - Strategy: ", strategy), "\n")
+
+if (strategy == "regular") {
     regular_fit()
 } else if (strategy == "remove") {
     if (!file.exists(paste0(output_path, "/MutationalPatterns_regular.txt"))) {
@@ -88,6 +86,5 @@ if (strategy == "all") {
     }
     strict_remove()
 } else {
-    # STUB refit_general also
     strict_refit()
 }

@@ -1,15 +1,15 @@
 {
-    "required": {
-        "samples": "example/WGS_BRCA.96.processed_2samples.txt",
-        "reference": "example/COSMIC_v3.3_SBS_GRCh37_processed.txt",
-        "output": "output/",
-        "strategy": "all"
-    },
+    "file_type": "txt",
+    "genome_reference": "GRCh37",
+    "samples": "example/SP-synthetic_catalogue.txt",
+    "signature_reference": "signature_reference/COSMICv3_SP-synthetic_GRCh37.txt",
+    "output": "output/SP-synthetic/",
+    "strategy": "refit",
     "tools": {
         "SigProfilerAssignment": true,
         "Sigminer": true,
-        "SignatureToolsLib": false,
+        "SignatureToolsLib": true,
         "MutationalPatterns": true,
         "MutSignatures": true
-    }   
+    }
 }

@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import shutil
+from datetime import datetime
 from SigProfilerAssignment import Analyzer as Analyze
 
 
@@ -57,15 +58,9 @@ def main(sample_path, reference_path, output_path, strategy):
     strategy_map = {
         'regular': sigprofiler_regular,
         'remove': sigprofiler_remove,
-        'refit': sigprofiler_refit,
-        # STUB
-        'refit_general': sigprofiler_refit
+        'refit': sigprofiler_refit
     }
-    if strategy == 'all':
-        for strat in strategy_map.values():
-            strat(sample_path, reference_path, output_path)
-    else:
-        strategy_map[strategy](sample_path, reference_path, output_path)
+    strategy_map[strategy](sample_path, reference_path, output_path)
 
 
 if __name__ == '__main__':
@@ -75,4 +70,11 @@ if __name__ == '__main__':
     reference_path = sys.argv[2]
     output_path = sys.argv[3]
     strategy = sys.argv[4]
+    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Start')
+    print(f'    - Sample Path: {sample_path}')
+    print(f'    - Reference Path: {reference_path}')
+    print(f'    - Output Path: {output_path}')
+    print(f'    - Strategy: {strategy}')
+
     main(sample_path, reference_path, output_path, strategy)
