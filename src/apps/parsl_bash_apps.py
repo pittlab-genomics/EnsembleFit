@@ -165,6 +165,7 @@ def EnsembleFit(sample_path,
 def postprocess(sample_path,
                 reference_path,
                 output_path,
+                result_path,
                 strategy,
                 tools,
                 stdout=parsl.AUTO_LOGNAME,
@@ -172,12 +173,13 @@ def postprocess(sample_path,
     tool_path = TOOLS_PATHS['postprocess']
     tools_str = " ".join(tools)
     cmd = """
-    python {tool_path} {sample_path} {reference_path} {output_path} {strategy} {tools_str}
+    python {tool_path} {sample_path} {reference_path} {output_path} {result_path} {strategy} {tools_str}
     """.format(
         tool_path=tool_path,
         sample_path=sample_path,
         reference_path=reference_path,
         output_path=output_path,
+        result_path=result_path,
         tools_str=tools_str,
         strategy=strategy
     )

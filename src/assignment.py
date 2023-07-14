@@ -1,6 +1,7 @@
 import sys
 import logging
 import json
+import shutil
 
 from parsl.executors import ThreadPoolExecutor
 from parsl.config import Config
@@ -36,19 +37,31 @@ def main(config_path):
     output_path = assignment_config['output']
     strategy = assignment_config['strategy']
 
-    if not os.path.isdir(output_path):
-        os.mkdir(output_path)
+    # Create output directory
+    os.makedirs(output_path, exist_ok=True)
+    
+    # Create working directory and results directory
+    WORKINGDIR = os.path.join(output_path, 'temp')
+    RESULTDIR = os.path.join(output_path, 'results')
+    os.makedirs(WORKINGDIR, exist_ok=True)
+    os.makedirs(RESULTDIR, exist_ok=True)
+
+    # Copy of input samples matrix
+    sample_path = os.path.join(WORKINGDIR, 'samples.txt')
 
     # Matrix generation if needed
     if assignment_config['file_type'] == 'vcf':
         vcf_path = assignment_config['samples']
         genome_reference = assignment_config['genome_reference']
         TOOLS_APPS['generate_matrix'](vcf_path, genome_reference).result()
-        sample_path = os.path.join(vcf_path, 'output/SBS/mutsig.SBS96.all')
+        # Move all output files to working directory
+        shutil.move(os.path.join(vcf_path, 'output/SBS/mutsig.SBS96.all'), sample_path)
+        os.makedirs(os.path.join(WORKINGDIR, 'SigProfilerMatrixGenerator'), exist_ok=True)
+        shutil.move(os.path.join(vcf_path, 'input'), os.path.join(WORKINGDIR, 'SigProfilerMatrixGenerator', 'input'))
+        shutil.move(os.path.join(vcf_path, 'logs'), os.path.join(WORKINGDIR, 'SigProfilerMatrixGenerator', 'logs'))
     else:
-        # Format matrix's SBS96 order to match the signature reference
-        sample_path = assignment_config['samples']
-        utils.format_matrix(sample_path, reference_path)
+        # Format matrix's SBS96 order to match the signature reference and save to working directory
+        utils.format_matrix(assignment_config['samples'], reference_path, sample_path)
 
     # Check if matrix is valid
     if not utils.is_valid_matrix(sample_path):
@@ -61,7 +74,7 @@ def main(config_path):
         if not is_run:
             continue
         tools.append(tool)
-        runs.append(TOOLS_APPS[tool](sample_path, reference_path, output_path, strategy))
+        runs.append(TOOLS_APPS[tool](sample_path, reference_path, WORKINGDIR, strategy))
 
     LOGGER.info("Waiting for Parsl tasks to complete...")
     parsl.wait_for_current_tasks()
@@ -69,11 +82,11 @@ def main(config_path):
     [r.result() for r in runs]
 
     # EnsembleFit
-    TOOLS_APPS['EnsembleFit'](sample_path, reference_path, output_path, strategy, tools).result()
+    TOOLS_APPS['EnsembleFit'](sample_path, reference_path, WORKINGDIR, strategy, tools).result()
 
     # Post-processing after all runs are done
     all_tools = tools + ['Ensemble-Majority', 'Ensemble-Unanimous', 'Ensemble-Mean']
-    TOOLS_APPS['postprocess'](sample_path, reference_path, output_path, strategy, all_tools).result()
+    TOOLS_APPS['postprocess'](sample_path, reference_path, WORKINGDIR, RESULTDIR, strategy, all_tools).result()
 
 
 if __name__ == '__main__':

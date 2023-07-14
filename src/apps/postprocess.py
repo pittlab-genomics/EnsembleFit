@@ -11,6 +11,7 @@ from workflow_utils import as_frequency_rowwise
 def main(sample_path,
         reference_path,
         output_path,
+        result_path,
         strategy,
         tools):
 
@@ -33,17 +34,14 @@ def main(sample_path,
             fit_rel[tool] = as_frequency_rowwise(df)
 
     print('Generating relative and absolute results directories...')
+    os.makedirs(os.path.join(result_path, 'relative'), exist_ok=True)
+    os.makedirs(os.path.join(result_path, 'absolute'), exist_ok=True)
     for tool in tools:
-        tooldir = 'EnsembleFit' if tool.startswith('Ensemble') else tool
-        if not os.path.exists(os.path.join(output_path, tooldir, 'relative')):
-            os.makedirs(os.path.join(output_path, tooldir, 'relative'))
-        if not os.path.exists(os.path.join(output_path, tooldir, 'absolute')):
-            os.makedirs(os.path.join(output_path, tooldir, 'absolute'))
         # Move absolute results
         shutil.move(os.path.join(output_path, tooldir, f'{tool}_{strategy}.txt'),
-                    os.path.join(output_path, tooldir, 'absolute', f'{tool}_{strategy}.txt'))
+                    os.path.join(result_path, tooldir, 'absolute', f'{tool}_{strategy}.txt'))
         # Create relative results
-        fit_rel[tool].to_csv(os.path.join(output_path, tooldir, 'relative', f'{tool}_{strategy}.txt'), sep='\t', index=False)
+        fit_rel[tool].to_csv(os.path.join(result_path, tooldir, 'relative', f'{tool}_{strategy}.txt'), sep='\t', index=False)
 
     print('Completed')
 
@@ -52,8 +50,9 @@ if __name__ == '__main__':
     sample_path = sys.argv[1]
     reference_path = sys.argv[2]
     output_path = sys.argv[3]
-    strategy = sys.argv[4]
-    tools = sys.argv[5:]
+    result_path = sys.argv[4]
+    strategy = sys.argv[5]
+    tools = sys.argv[6:]
 
     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] Start')
     print(f'    - Sample Path: {sample_path}')
@@ -62,4 +61,4 @@ if __name__ == '__main__':
     print(f'    - Strategy: {strategy}')
     print(f'    - Tools: {", ".join(tools)}')
 
-    main(sample_path, reference_path, output_path, strategy, tools)
+    main(sample_path, reference_path, output_path, result_path, strategy, tools)
