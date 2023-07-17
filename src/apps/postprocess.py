@@ -38,11 +38,13 @@ def main(sample_path,
     os.makedirs(os.path.join(result_path, 'absolute'), exist_ok=True)
     for tool in tools:
         tooldir = 'EnsembleFit' if tool.startswith('Ensemble') else tool
-        # Move absolute results
-        shutil.move(os.path.join(output_path, tooldir, f'{tool}_{strategy}.txt'),
-                    os.path.join(result_path, tooldir, 'absolute', f'{tool}_{strategy}.txt'))
+        os.makedirs(os.path.join(result_path, 'relative', tooldir), exist_ok=True)
+        os.makedirs(os.path.join(result_path, 'absolute', tooldir), exist_ok=True)
+        # Copy absolute results
+        shutil.copy(os.path.join(output_path, tooldir, f'{tool}_{strategy}.txt'),
+                    os.path.join(result_path, 'absolute', tooldir, f'{tool}_{strategy}.txt'))
         # Create relative results
-        fit_rel[tool].to_csv(os.path.join(result_path, tooldir, 'relative', f'{tool}_{strategy}.txt'), sep='\t', index=False)
+        fit_rel[tool].to_csv(os.path.join(result_path, 'relative', tooldir, f'{tool}_{strategy}.txt'), sep='\t', index=False)
 
     print('Completed')
 
