@@ -37,6 +37,7 @@ def main(sample_path,
     os.makedirs(os.path.join(result_path, 'relative'), exist_ok=True)
     os.makedirs(os.path.join(result_path, 'absolute'), exist_ok=True)
     for tool in tools:
+        tooldir = 'EnsembleFit' if tool.startswith('Ensemble') else tool
         # Move absolute results
         shutil.move(os.path.join(output_path, tooldir, f'{tool}_{strategy}.txt'),
                     os.path.join(result_path, tooldir, 'absolute', f'{tool}_{strategy}.txt'))
