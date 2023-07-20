@@ -3,7 +3,7 @@ set -e
 
 CONDA_BASE=$(conda info --base)
 source $CONDA_BASE/etc/profile.d/conda.sh
-CONDA_ENV_NAME="mutsig_assignment"
+CONDA_ENV_NAME="ensemblefit"
 
 if conda env list | awk '{print $1}' | grep -Eq "^${CONDA_ENV_NAME}$"; then
   echo "######## Conda environment found: $CONDA_ENV_NAME"
