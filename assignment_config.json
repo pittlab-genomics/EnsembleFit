@@ -1,9 +1,9 @@
 {
     "file_type": "txt",
     "genome_reference": "GRCh37",
-    "samples": "example/SP-synthetic_pancan_50.txt",
+    "samples": "example/input/SP-synthetic_BRCA_198.txt",
     "signature_reference": "signature_reference/COSMICv3_SP-synthetic_GRCh37.txt",
-    "output": "output/SP-synthetic-test/",
+    "output": "output/SP-synthetic_BRCA/",
     "strategy": "refit",
     "tools": {
         "SigProfilerAssignment": true,

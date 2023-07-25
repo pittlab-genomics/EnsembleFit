@@ -39,18 +39,17 @@ def main(sample_path, reference_path, output_path, strategy, tools):
 
     all_samples = pd.read_csv(sample_path, sep='\t').columns[1:].tolist()
     all_sigs = pd.read_csv(reference_path, sep='\t').columns[1:].tolist()
-    fit_abs, fit_rel = {}, {}
+    fit = {}
     for tool in tools:
         df = pd.read_csv(os.path.join(output_path, tool, f'{tool}_{strategy}.txt'), sep='\t')
         df['Samples']  = all_samples
         for sig in all_sigs:
             if sig not in df.columns:
                 df[sig] = 0
-        fit_abs[tool] = df
-        fit_rel[tool] = as_frequency_rowwise(df)
+        fit[tool] = as_frequency_rowwise(df)
 
-    ens_majority, ens_unanimous = ensemble_qualitative(fit_abs, all_sigs, all_samples)
-    ens_mean = ensemble_quantitative(fit_abs, all_sigs, all_samples)
+    ens_majority, ens_unanimous = ensemble_qualitative(fit, all_sigs, all_samples)
+    ens_mean = ensemble_quantitative(fit, all_sigs, all_samples)
     ens_majority.to_csv(os.path.join(output_path, 'EnsembleFit', f'Ensemble-Majority_{strategy}.txt'), sep='\t', index=False)
     ens_unanimous.to_csv(os.path.join(output_path, 'EnsembleFit', f'Ensemble-Unanimous_{strategy}.txt'), sep='\t', index=False)
     ens_mean.to_csv(os.path.join(output_path, 'EnsembleFit', f'Ensemble-Mean_{strategy}.txt'), sep='\t', index=False)

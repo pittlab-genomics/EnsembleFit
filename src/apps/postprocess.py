@@ -33,18 +33,12 @@ def main(sample_path,
         else:
             fit_rel[tool] = as_frequency_rowwise(df)
 
-    print('Generating relative and absolute results directories...')
-    os.makedirs(os.path.join(result_path, 'relative'), exist_ok=True)
-    os.makedirs(os.path.join(result_path, 'absolute'), exist_ok=True)
+    print('Generating results directory...')
+    os.makedirs(result_path, exist_ok=True)
     for tool in tools:
         tooldir = 'EnsembleFit' if tool.startswith('Ensemble') else tool
-        os.makedirs(os.path.join(result_path, 'relative', tooldir), exist_ok=True)
-        os.makedirs(os.path.join(result_path, 'absolute', tooldir), exist_ok=True)
-        # Copy absolute results
-        shutil.copy(os.path.join(output_path, tooldir, f'{tool}_{strategy}.txt'),
-                    os.path.join(result_path, 'absolute', tooldir, f'{tool}_{strategy}.txt'))
-        # Create relative results
-        fit_rel[tool].to_csv(os.path.join(result_path, 'relative', tooldir, f'{tool}_{strategy}.txt'), sep='\t', index=False)
+        os.makedirs(os.path.join(result_path, tooldir), exist_ok=True)
+        fit_rel[tool].to_csv(os.path.join(result_path, tooldir, f'{tool}_{strategy}.txt'), sep='\t', index=False)
 
     print('Completed')
 

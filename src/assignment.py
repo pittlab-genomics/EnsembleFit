@@ -88,6 +88,9 @@ def main(config_path):
     all_tools = tools + ['Ensemble-Majority', 'Ensemble-Unanimous', 'Ensemble-Mean']
     TOOLS_APPS['postprocess'](sample_path, reference_path, WORKINGDIR, RESULTDIR, strategy, all_tools).result()
 
+    # Clean up working directory
+    shutil.rmtree(WORKINGDIR)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
