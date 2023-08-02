@@ -16,6 +16,11 @@ docker pull pittgenomics/ensemblefit:latest
 
 ## Get Started (Non-Docker)
 
+Requirements:
+- Anaconda or Miniconda with Python 3
+- Linux or Windows Subsystem for Linux (WSL)
+- Estimated 12 GB of free storage
+
 1. Clone this repository and change to the directory
 
 ```
@@ -23,18 +28,20 @@ git clone https://github.com/pittlab-genomics/EnsembleFit
 cd EnsembleFit
 ```
 
-2. Install Conda environment and dependencies. Choose the reference genome version to install (E.g. GRCh37, GRCh38)
-
+2. Install Conda environment and dependencies. WARNING: This step may take 2-4 hours depending on your system to download and install all tools and their dependencies. 
 ```
 bash setup/install_assignment_env.sh
+```
+
+3. Activate the `ensemblefit` conda environment and choose the reference genome version to install (E.g. GRCh37, GRCh38). In this example, GRCh37 is installed.
+```
 conda activate ensemblefit
 python setup/install_genome.py GRCh37
 ```
 
-3. Modify (or leave as default) the configuration file `assignment_config.json` and run the workflow.
+4. Modify (or leave as default) the configuration file `assignment_config.json` and run the workflow.
 
 ```
-conda activate ensemblefit
 python src/assignment.py
 ```
 
