@@ -3,7 +3,7 @@
     "genome_reference": "GRCh37",
     "samples": "example/input/SP-synthetic_BRCA_198.txt",
     "signature_reference": "signature_reference/COSMICv3_SP-synthetic_GRCh37.txt",
-    "output": "output/SP-synthetic_BRCA/",
+    "output": "example/output/SP-synthetic_BRCA/",
     "strategy": "refit",
     "tools": {
         "SigProfilerAssignment": true,

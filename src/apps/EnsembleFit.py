@@ -4,11 +4,13 @@ from datetime import datetime
 import math
 import pandas as pd
 import numpy as np
+import random
 
 from workflow_utils import as_frequency_rowwise
 
 
 def ensemble_qualitative(fit, all_sigs, all_samples):
+    print('Ensemble-Majority/Unanimous: Voting...')
     ens_majority = pd.DataFrame({'Samples': all_samples})
     ens_unanimous = pd.DataFrame({'Samples': all_samples})
     tools = list(fit.keys())
@@ -22,14 +24,21 @@ def ensemble_qualitative(fit, all_sigs, all_samples):
 
 
 def ensemble_quantitative(fit, all_sigs, all_samples):
+    print('Ensemble-Mean: Bootstrapping...')
+    def bootstrap(arr, k, size=500):
+        return np.mean([np.mean(random.choices(arr, k=k)) for _ in range(size)])
+
+    random.seed(37)
     ens_mean = pd.DataFrame({'Samples': all_samples})
     tools = list(fit.keys())
     for sig in all_sigs:
-        means = np.zeros(len(all_samples))
-        for tool in tools:
-            means += fit[tool][sig]
-        means /= len(tools)
-        ens_mean[sig] = means
+        bootstrap_means = []
+        for sample in all_samples:
+            vals = [fit[tool].set_index('Samples').loc[sample, sig] for tool in tools]
+            # Only bootstrap if sum is not 0
+            val = 0 if sum(vals) == 0 else bootstrap(vals, len(tools), size=500)
+            bootstrap_means.append(val)
+        ens_mean[sig] = bootstrap_means
     return ens_mean
 
 
